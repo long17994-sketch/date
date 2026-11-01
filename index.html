@@ -233,9 +233,10 @@
                     <div class="truncate">
                         <div class="flex items-center gap-1.5">
                             <h1 class="text-sm sm:text-lg font-extrabold tracking-tight text-slate-900 truncate">DateTrack FMCG</h1>
-                            <span id="cloudSyncStatus" class="hidden sm:inline-flex items-center justify-center w-5 h-5 rounded-full bg-slate-100 text-slate-400 text-[10px]" title="Local Mode">
-                                <i class="fa-solid fa-cloud"></i>
-                            </span>
+                            <button onclick="openFirebaseModal()" id="cloudSyncStatus" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-[10px] font-bold border border-amber-300 transition active:scale-95" title="Bấm để kiểm tra & đẩy dữ liệu Firebase">
+                                <i id="cloudSyncIcon" class="fa-solid fa-cloud-arrow-up animate-pulse"></i>
+                                <span id="cloudSyncText">Đang kết nối...</span>
+                            </button>
                             <span class="hidden md:inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
                                 Theo Dõi Ngày Báo & Quy Định Đổi NPP
                             </span>
@@ -473,120 +474,6 @@
 
             <!-- Store Cards List (Step 1) -->
             <div id="step1StoreContainer" class="space-y-3"></div>
-        </div>
-                <p id="kpiTotalValue" class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1">0đ</p>
-                <p id="kpiStoreChannelSub" class="text-[11px] text-slate-500 mt-0.5">0 tiệm • 0 món ghi nhận</p>
-            </div>
-
-            <!-- Card 2 (Red): Overdue Waiting (> 7 days) -->
-            <div id="dashCardOVERDUE" onclick="applyDashboardWaitFilter('OVERDUE')" class="cursor-pointer bg-white hover:border-rose-400 p-3.5 rounded-2xl border border-rose-200 shadow-xs transition relative overflow-hidden">
-                <div class="flex items-center justify-between text-xs font-extrabold text-rose-700">
-                    <span>🔥 Chờ lâu (> 7 ngày)</span>
-                    <span class="w-7 h-7 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center">
-                        <i class="fa-solid fa-bell"></i>
-                    </span>
-                </div>
-                <p id="kpiOverdueCount" class="text-xl sm:text-2xl font-extrabold text-rose-600 mt-1">0 tiệm</p>
-                <p id="kpiOverdueSub" class="text-[11px] text-rose-600/80 font-medium mt-0.5">Cần hối NPP & trả gấp</p>
-            </div>
-
-            <!-- Card 3 (Amber): Waiting 4 - 7 days -->
-            <div id="dashCardWAITING" onclick="applyDashboardWaitFilter('WAITING')" class="cursor-pointer bg-white hover:border-amber-400 p-3.5 rounded-2xl border border-amber-200 shadow-xs transition relative overflow-hidden">
-                <div class="flex items-center justify-between text-xs font-bold text-amber-800">
-                    <span>⏳ Đang chờ (4 - 7 ngày)</span>
-                    <span class="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
-                        <i class="fa-solid fa-hourglass-half"></i>
-                    </span>
-                </div>
-                <p id="kpiWaitingCount" class="text-xl sm:text-2xl font-extrabold text-amber-700 mt-1">0 tiệm</p>
-                <p id="kpiWaitingSub" class="text-[11px] text-amber-700/80 mt-0.5">Đang gom đơn chờ duyệt</p>
-            </div>
-
-            <!-- Card 4 (Green/Teal): Recent (0 - 3 days) & Delivered -->
-            <div id="dashCardRECENT" onclick="applyDashboardWaitFilter('RECENT')" class="cursor-pointer bg-white hover:border-emerald-400 p-3.5 rounded-2xl border border-emerald-200 shadow-xs transition relative overflow-hidden">
-                <div class="flex items-center justify-between text-xs font-bold text-emerald-700">
-                    <span>🌱 Mới báo (0-3 ngày) & Đã trả</span>
-                    <span class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                        <i class="fa-solid fa-circle-check"></i>
-                    </span>
-                </div>
-                <p id="kpiRecentAndDone" class="text-xl sm:text-2xl font-extrabold text-emerald-700 mt-1">0 tiệm</p>
-                <p id="kpiRecentSub" class="text-[11px] text-slate-500 mt-0.5">0 mới báo • 0 đã đổi xong</p>
-            </div>
-        </section>
-
-        <!-- ==========================================
-             STEP 1 VIEW: GHI NHẬN HÀNG HẾT DATE & THỜI GIAN CHỜ TỪNG TIỆM
-             ========================================== -->
-        <div id="stepView1" class="space-y-4 animate-slide-up">
-            <!-- Process Guide Banner -->
-            <div class="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-4 text-white shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div class="space-y-1">
-                    <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/20 text-white">
-                        <i class="fa-solid fa-clock"></i> BƯỚC 1 / 3: GHI NHẬN NGÀY KHÁCH BÁO & THEO DÕI THỜI GIAN CHỜ
-                    </div>
-                    <h2 class="text-base sm:text-lg font-extrabold">Danh sách cửa hàng báo hàng hết date (Ưu tiên tiệm chờ lâu lên đầu)</h2>
-                    <p class="text-xs text-blue-100">Hệ thống tự động tính <strong>Số ngày khách đã chờ = Hôm nay − Ngày ghi nhận</strong> để bạn biết tiệm nào đang ngâm lâu cần ưu tiên giải quyết trước.</p>
-                </div>
-                <div class="flex items-center gap-2 shrink-0 flex-wrap">
-                    <button onclick="openItemModal()" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white text-blue-700 hover:bg-blue-50 text-xs sm:text-sm font-extrabold shadow-sm transition active:scale-95">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>Ghi Nhận Hàng Khách Báo</span>
-                    </button>
-                    <button onclick="switchStep(2)" class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl bg-blue-500/30 hover:bg-blue-500/40 border border-white/30 text-white text-xs sm:text-sm font-bold transition">
-                        <span>Qua B2: Quy Định Đổi NPP</span>
-                        <i class="fa-solid fa-arrow-right"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Search, Filters & Sorting for Step 1 -->
-            <div class="bg-white rounded-2xl border border-slate-200 p-3 sm:p-4 shadow-xs space-y-3">
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-2.5">
-                    <div class="lg:col-span-4 relative">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                        <input
-                            type="text"
-                            id="searchInput"
-                            oninput="renderStep1()"
-                            placeholder="Tìm tên tiệm, sản phẩm khách báo, ghi chú..."
-                            class="w-full pl-9 pr-8 py-2 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-blue-600"
-                        >
-                    </div>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 lg:col-span-8">
-                        <select id="filterWaitLevel" onchange="syncWaitCardHighlight(); renderStep1();" class="px-2.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm font-bold text-slate-700 focus:outline-none focus:border-blue-600">
-                            <option value="ALL">⏳ Mọi thời gian chờ</option>
-                            <option value="OVERDUE">🔥 Chờ lâu (> 7 ngày)</option>
-                            <option value="WAITING">⚠️ Đang chờ (4 - 7 ngày)</option>
-                            <option value="RECENT">🌱 Mới báo (0 - 3 ngày)</option>
-                            <option value="DELIVERED">✅ Đã trả hàng đổi</option>
-                        </select>
-                        <select id="filterChannel" onchange="renderStep1()" class="px-2.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm font-medium text-slate-700 focus:outline-none focus:border-blue-600">
-                            <option value="ALL">Mọi kênh (OFF & ON)</option>
-                            <option value="OFF">🏪 Kênh OFF (Tạp hóa)</option>
-                            <option value="ON">🍜 Kênh ON (Quán ăn/Xe nước)</option>
-                        </select>
-                        <select id="filterRoute" onchange="renderStep1()" class="px-2.5 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs sm:text-sm font-medium text-slate-700 focus:outline-none focus:border-blue-600">
-                            <option value="ALL">Mọi tuyến (T2-T7)</option>
-                            <option value="Thứ 2">Tuyến Thứ 2</option>
-                            <option value="Thứ 3">Tuyến Thứ 3</option>
-                            <option value="Thứ 4">Tuyến Thứ 4</option>
-                            <option value="Thứ 5">Tuyến Thứ 5</option>
-                            <option value="Thứ 6">Tuyến Thứ 6</option>
-                            <option value="Thứ 7">Tuyến Thứ 7</option>
-                        </select>
-                        <select id="sortStoreBy" onchange="renderStep1()" class="px-2.5 py-2 rounded-xl border border-indigo-200 bg-indigo-50/60 text-xs sm:text-sm font-bold text-indigo-900 focus:outline-none focus:border-indigo-600">
-                            <option value="WAIT_DESC">⚡ Sắp xếp: Chờ lâu nhất trước</option>
-                            <option value="VALUE_DESC">💰 Giá trị cao nhất trước</option>
-                            <option value="WAIT_ASC">🆕 Mới báo gần đây nhất</option>
-                            <option value="ROUTE_ASC">🛣️ Theo tuyến Thứ 2 ➔ Thứ 7</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Store Cards List (Step 1) -->
-            <div id="step1StoreContainer" class="space-y-3.5"></div>
         </div>
 
         <!-- ==========================================
@@ -1142,6 +1029,72 @@
         </div>
     </div>
 
+    <!-- ==========================================
+         MODAL 5: FIREBASE REALTIME DATABASE CONTROL & DIAGNOSTICS
+         ========================================== -->
+    <div id="firebaseModal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white w-full max-w-lg rounded-t-3xl sm:rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-slide-up">
+            <div class="px-5 py-4 bg-gradient-to-r from-amber-500 to-orange-600 text-white flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
+                        <i class="fa-solid fa-fire-flame-curved text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-extrabold">Kết Nối Firebase Realtime Database</h3>
+                        <p class="text-xs text-amber-100">Đồng bộ trực tiếp vào project khoh-442b0 của bạn</p>
+                    </div>
+                </div>
+                <button onclick="closeFirebaseModal()" class="w-8 h-8 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="p-5 space-y-4 text-xs sm:text-sm">
+                <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-1.5">
+                    <p class="text-[11px] font-bold uppercase text-slate-400">Đường dẫn Database (Node Path):</p>
+                    <p class="font-mono text-xs text-blue-600 break-all font-bold">
+                        https://khoh-442b0-default-rtdb.asia-southeast1.firebasedatabase.app/datetrack_fmcg
+                    </p>
+                    <div class="pt-1 flex items-center justify-between">
+                        <span class="text-xs text-slate-500">Trạng thái hiện tại:</span>
+                        <span id="fbModalStatusBadge" class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800">
+                            Đang kiểm tra...
+                        </span>
+                    </div>
+                    <p id="fbModalLastSync" class="text-[11px] text-slate-500 italic"></p>
+                </div>
+
+                <!-- Error / Rule Guide Box (Shown if 401 Permission Denied) -->
+                <div id="fbRuleWarningBox" class="hidden p-3.5 rounded-2xl bg-rose-50 border border-rose-200 space-y-2">
+                    <p class="font-extrabold text-rose-700 flex items-center gap-1.5">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span>Firebase đang chặn quyền ghi (Permission Denied - 401)!</span>
+                    </p>
+                    <p class="text-xs text-rose-600 leading-relaxed">
+                        Bạn hãy mở trang quản trị Firebase Console ➔ <strong>Realtime Database</strong> ➔ tab <strong>Rules (Quy tắc)</strong>, đổi thành như bên dưới rồi bấm <strong>Publish (Xuất bản)</strong>:
+                    </p>
+                    <pre class="p-2.5 rounded-xl bg-slate-900 text-emerald-400 font-mono text-[11px] overflow-x-auto"><code>{
+  "rules": {
+    ".read": true,
+    ".write": true
+  }
+}</code></pre>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                    <button type="button" onclick="forcePushToFirebase()" class="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition active:scale-95">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>Đẩy Lên Firebase Ngay</span>
+                    </button>
+                    <button type="button" onclick="forcePullFromFirebase()" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-md transition active:scale-95">
+                        <i class="fa-solid fa-cloud-arrow-down"></i>
+                        <span>Tải Dữ Liệu Từ Firebase Về</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- TOAST CONTAINER -->
     <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
@@ -1569,23 +1522,67 @@
         }
 
         window._firebaseGetLocalState = function() {
-            return { productCatalog, collectedItems, exchangeRules, manualAllocations, storeDeliveryDone };
+            return {
+                productCatalog,
+                collectedItems,
+                exchangeRules,
+                manualAllocations: manualAllocations || {},
+                storeDeliveryDone: storeDeliveryDone || {},
+                updatedAt: new Date().toISOString()
+            };
         };
 
         window._firebaseLoadState = function(data) {
-            let hasChanges = false;
-            if (data.productCatalog) { productCatalog = data.productCatalog; hasChanges = true; }
-            if (data.collectedItems) { collectedItems = data.collectedItems; hasChanges = true; }
-            if (data.exchangeRules) { exchangeRules = data.exchangeRules; hasChanges = true; }
-            if (data.manualAllocations) { manualAllocations = data.manualAllocations; hasChanges = true; }
-            if (data.storeDeliveryDone) { storeDeliveryDone = data.storeDeliveryDone; hasChanges = true; }
-            
-            if (hasChanges) {
-                ensureEveryCollectedSkuHasRule();
-                populatePresetsAndDatalists();
-                renderAll();
+            if (!data || typeof data !== 'object') return;
+            if (Array.isArray(data.productCatalog) && data.productCatalog.length > 0) {
+                productCatalog = data.productCatalog;
             }
+            if (Array.isArray(data.collectedItems)) {
+                collectedItems = data.collectedItems;
+            }
+            if (data.exchangeRules && typeof data.exchangeRules === 'object') {
+                exchangeRules = data.exchangeRules;
+            }
+            manualAllocations = (data.manualAllocations && typeof data.manualAllocations === 'object') ? data.manualAllocations : {};
+            storeDeliveryDone = (data.storeDeliveryDone && typeof data.storeDeliveryDone === 'object') ? data.storeDeliveryDone : {};
+
+            try {
+                localStorage.setItem(STORAGE_KEY_V4, JSON.stringify({
+                    productCatalog,
+                    collectedItems,
+                    exchangeRules,
+                    manualAllocations,
+                    storeDeliveryDone
+                }));
+            } catch (e) {}
+
+            ensureEveryCollectedSkuHasRule();
+            populatePresetsAndDatalists();
+            renderAll();
         };
+
+        function openFirebaseModal() {
+            document.getElementById('firebaseModal').classList.remove('hidden');
+        }
+
+        function closeFirebaseModal() {
+            document.getElementById('firebaseModal').classList.add('hidden');
+        }
+
+        async function forcePushToFirebase() {
+            if (window._firebaseSaveState && window._firebaseGetLocalState) {
+                const ok = await window._firebaseSaveState(window._firebaseGetLocalState(), true);
+                if (ok) {
+                    showToast('🚀 Đã đẩy toàn bộ dữ liệu lên Firebase thành công!', 'success');
+                }
+            }
+        }
+
+        async function forcePullFromFirebase() {
+            if (window._firebasePullNow) {
+                await window._firebasePullNow(true);
+            }
+        }
 
         // Ensure any collected Old SKU has at least a default 1-1 rule entry in `exchangeRules`
         function ensureEveryCollectedSkuHasRule() {
@@ -3408,98 +3405,186 @@
     </script>
 
     <!-- ==========================================
-         FIREBASE CLOUD SYNC MODULE
+         FIREBASE CLOUD SYNC MODULE (DIRECT TO USER RTDB)
          ========================================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'datetrack-fmcg';
-        let firebaseConfig = {};
-        try {
-            firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { projectId: 'demo-project' };
-        } catch (e) {
-            console.warn("Could not parse __firebase_config", e);
+        const FIREBASE_DB_URL = "https://khoh-442b0-default-rtdb.asia-southeast1.firebasedatabase.app";
+        const FIREBASE_NODE_PATH = "datetrack_fmcg";
+        const FIREBASE_REST_ENDPOINT = `${FIREBASE_DB_URL}/${FIREBASE_NODE_PATH}.json`;
+
+        let isApplyingRemote = false;
+
+        function updateSyncUI(status, detailMsg = '') {
+            const btn = document.getElementById('cloudSyncStatus');
+            const icon = document.getElementById('cloudSyncIcon');
+            const text = document.getElementById('cloudSyncText');
+            const modalBadge = document.getElementById('fbModalStatusBadge');
+            const modalLastSync = document.getElementById('fbModalLastSync');
+            const ruleWarn = document.getElementById('fbRuleWarningBox');
+
+            if (!btn || !icon || !text) return;
+
+            btn.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border transition active:scale-95';
+
+            if (status === 'syncing') {
+                btn.classList.add('bg-amber-100', 'text-amber-700', 'border-amber-300');
+                icon.className = 'fa-solid fa-arrows-rotate animate-spin';
+                text.textContent = 'Đang lưu...';
+                if (modalBadge) {
+                    modalBadge.className = 'px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800';
+                    modalBadge.textContent = 'Đang đồng bộ lên Firebase...';
+                }
+            } else if (status === 'success') {
+                btn.classList.add('bg-emerald-100', 'text-emerald-700', 'border-emerald-300');
+                icon.className = 'fa-solid fa-cloud-check';
+                text.textContent = 'Đã lưu Firebase';
+                if (ruleWarn) ruleWarn.classList.add('hidden');
+                if (modalBadge) {
+                    modalBadge.className = 'px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800';
+                    modalBadge.textContent = '✅ Đã kết nối & lưu thành công';
+                }
+                if (modalLastSync) {
+                    const now = new Date();
+                    modalLastSync.textContent = detailMsg || `Cập nhật lần cuối lúc ${now.toLocaleTimeString('vi-VN')}`;
+                }
+            } else if (status === 'permission_denied') {
+                btn.classList.add('bg-rose-100', 'text-rose-700', 'border-rose-300');
+                icon.className = 'fa-solid fa-lock';
+                text.textContent = 'Chặn Rules (Bấm xem)';
+                if (ruleWarn) ruleWarn.classList.remove('hidden');
+                if (modalBadge) {
+                    modalBadge.className = 'px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-rose-100 text-rose-800';
+                    modalBadge.textContent = '❌ Lỗi 401: Chưa mở Rules (.read/.write)';
+                }
+                if (modalLastSync) {
+                    modalLastSync.textContent = detailMsg || 'Firebase từ chối ghi do Rules đang để false hoặc yêu cầu Auth.';
+                }
+            } else {
+                btn.classList.add('bg-rose-100', 'text-rose-700', 'border-rose-300');
+                icon.className = 'fa-solid fa-triangle-exclamation';
+                text.textContent = 'Lỗi kết nối';
+                if (modalBadge) {
+                    modalBadge.className = 'px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-rose-100 text-rose-800';
+                    modalBadge.textContent = '❌ Lỗi kết nối mạng / Firebase';
+                }
+                if (modalLastSync && detailMsg) {
+                    modalLastSync.textContent = detailMsg;
+                }
+            }
         }
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        
-        // Kết nối thẳng tới link Firebase Realtime Database bạn yêu cầu
-        const db = getDatabase(app, "https://khoh-442b0-default-rtdb.asia-southeast1.firebasedatabase.app/");
+        // Hàm đẩy dữ liệu trực tiếp lên https://khoh-442b0-default-rtdb.asia-southeast1.firebasedatabase.app/datetrack_fmcg.json
+        window._firebaseSaveState = async function(stateObj, showErrorModal = false) {
+            if (isApplyingRemote) return false;
+            updateSyncUI('syncing');
+            try {
+                const payload = {
+                    ...stateObj,
+                    updatedAt: new Date().toISOString()
+                };
+                const res = await fetch(FIREBASE_REST_ENDPOINT, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
-        const setSyncStatus = (status) => {
-            const el = document.getElementById('cloudSyncStatus');
-            if (!el) return;
-            el.classList.remove('hidden', 'bg-slate-100', 'text-slate-400', 'bg-emerald-100', 'text-emerald-600', 'bg-rose-100', 'text-rose-600', 'bg-amber-100', 'text-amber-600', 'animate-pulse');
-            if (status === 'syncing') {
-                el.classList.add('bg-amber-100', 'text-amber-600', 'animate-pulse');
-                el.title = 'Đang đồng bộ (RTDB)...';
-            } else if (status === 'success') {
-                el.classList.add('bg-emerald-100', 'text-emerald-600');
-                el.title = 'Đã đồng bộ an toàn lên Cloud (RTDB)';
-            } else if (status === 'error') {
-                el.classList.add('bg-rose-100', 'text-rose-600');
-                el.title = 'Lỗi đồng bộ Cloud';
+                if (res.ok) {
+                    updateSyncUI('success');
+                    return true;
+                } else {
+                    const errData = await res.json().catch(() => ({}));
+                    console.error('Firebase PUT rejected:', res.status, errData);
+                    if (res.status === 401 || res.status === 403 || String(errData?.error || '').toLowerCase().includes('permission')) {
+                        updateSyncUI('permission_denied', `HTTP ${res.status}: Permission Denied (Cần mở Rules trên Firebase Console)`);
+                        if (showErrorModal && window.openFirebaseModal) window.openFirebaseModal();
+                    } else {
+                        updateSyncUI('error', `HTTP ${res.status}: ${errData?.error || 'Lỗi không xác định'}`);
+                    }
+                    return false;
+                }
+            } catch (err) {
+                console.error('Firebase PUT network error:', err);
+                updateSyncUI('error', 'Không thể kết nối tới máy chủ Firebase.');
+                return false;
             }
         };
 
-        async function setupFirebase() {
+        // Hàm tải dữ liệu từ Firebase về máy; nếu trên Firebase đang trống (null) thì tự động đẩy dữ liệu hiện tại lên ngay!
+        window._firebasePullNow = async function(isManualTrigger = false) {
+            updateSyncUI('syncing');
             try {
-                // Yêu cầu xác thực trước khi kết nối dữ liệu
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-                const user = auth.currentUser;
-                if (!user) return;
-
-                // Chuẩn hóa đường dẫn (RTDB không cho phép chứa dấu ".", "#", "$", "[", "]")
-                const safeAppId = String(appId).replace(/[.#$\[\]]/g, '_');
-
-                // Chuẩn bị đường dẫn lưu trữ private riêng tư cho User trên Realtime Database
-                const stateDbRef = ref(db, `artifacts/${safeAppId}/users/${user.uid}/fmcgData/main`);
-
-                // Cung cấp hàm lưu dữ liệu ra bên ngoài
-                window._firebaseSaveState = async (stateObj) => {
-                    setSyncStatus('syncing');
-                    try {
-                        await set(stateDbRef, stateObj);
-                        setSyncStatus('success');
-                    } catch (err) {
-                        console.error("Firebase save error:", err);
-                        setSyncStatus('error');
-                    }
-                };
-
-                // Lắng nghe sự thay đổi dữ liệu theo thời gian thực (Realtime Database)
-                onValue(stateDbRef, (snapshot) => {
-                    if (snapshot.exists()) {
-                        setSyncStatus('success');
-                        const data = snapshot.val();
+                const res = await fetch(FIREBASE_REST_ENDPOINT, { method: 'GET' });
+                if (res.ok) {
+                    const remoteData = await res.json();
+                    if (remoteData && (remoteData.collectedItems || remoteData.productCatalog)) {
+                        isApplyingRemote = true;
                         if (window._firebaseLoadState) {
-                            window._firebaseLoadState(data);
+                            window._firebaseLoadState(remoteData);
+                        }
+                        isApplyingRemote = false;
+                        updateSyncUI('success', 'Đã đồng bộ dữ liệu từ Firebase về máy');
+                        if (isManualTrigger && window.showToast) {
+                            window.showToast('📥 Đã tải dữ liệu mới nhất từ Firebase về!', 'success');
                         }
                     } else {
-                        // Nếu chưa có dữ liệu trên Cloud, tiến hành đẩy dữ liệu mẫu ban đầu lên
+                        // Nhánh /datetrack_fmcg trên Firebase đang trống -> Tự động đẩy dữ liệu hiện tại lên ngay
                         if (window._firebaseGetLocalState) {
-                            window._firebaseSaveState(window._firebaseGetLocalState());
+                            await window._firebaseSaveState(window._firebaseGetLocalState(), false);
                         }
                     }
-                }, (error) => {
-                    console.error("Firebase sync error:", error);
-                    setSyncStatus('error');
-                });
-
+                } else {
+                    const errData = await res.json().catch(() => ({}));
+                    if (res.status === 401 || res.status === 403) {
+                        updateSyncUI('permission_denied', `HTTP ${res.status}: Permission Denied (Cần mở Rules .read/.write = true)`);
+                        if (window.openFirebaseModal) window.openFirebaseModal();
+                    } else {
+                        updateSyncUI('error', `HTTP ${res.status}: ${errData?.error || ''}`);
+                    }
+                }
             } catch (err) {
-                console.error("Firebase setup error:", err);
-                setSyncStatus('error');
+                console.error('Firebase GET error:', err);
+                updateSyncUI('error', 'Không thể kết nối tới máy chủ Firebase.');
+            }
+        };
+
+        // Khởi tạo App độc lập (không dùng token của project khác) để lắng nghe Realtime WebSocket
+        function initStandaloneRtdbListener() {
+            try {
+                const standaloneApp = initializeApp({
+                    databaseURL: FIREBASE_DB_URL
+                }, 'khohStandaloneApp');
+
+                const rtdb = getDatabase(standaloneApp);
+                const dataRef = ref(rtdb, FIREBASE_NODE_PATH);
+
+                onValue(dataRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const val = snapshot.val();
+                        if (val && (val.collectedItems || val.productCatalog)) {
+                            isApplyingRemote = true;
+                            if (window._firebaseLoadState) {
+                                window._firebaseLoadState(val);
+                            }
+                            isApplyingRemote = false;
+                            updateSyncUI('success');
+                        }
+                    }
+                }, (err) => {
+                    console.warn('Realtime listener warning:', err.message);
+                });
+            } catch (e) {
+                console.warn('Standalone RTDB listener setup error:', e);
             }
         }
 
-        setupFirebase();
+        // Chạy đồng bộ ngay khi mở trang
+        setTimeout(() => {
+            window._firebasePullNow(false);
+            initStandaloneRtdbListener();
+        }, 400);
     </script>
 </body>
 </html>
