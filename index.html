@@ -3413,7 +3413,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'datetrack-fmcg';
         let firebaseConfig = {};
@@ -3425,7 +3425,9 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
+        
+        // Kết nối thẳng tới link Firebase Realtime Database bạn yêu cầu
+        const db = getDatabase(app, "https://khoh-442b0-default-rtdb.asia-southeast1.firebasedatabase.app/");
 
         const setSyncStatus = (status) => {
             const el = document.getElementById('cloudSyncStatus');
@@ -3433,10 +3435,10 @@
             el.classList.remove('hidden', 'bg-slate-100', 'text-slate-400', 'bg-emerald-100', 'text-emerald-600', 'bg-rose-100', 'text-rose-600', 'bg-amber-100', 'text-amber-600', 'animate-pulse');
             if (status === 'syncing') {
                 el.classList.add('bg-amber-100', 'text-amber-600', 'animate-pulse');
-                el.title = 'Đang đồng bộ...';
+                el.title = 'Đang đồng bộ (RTDB)...';
             } else if (status === 'success') {
                 el.classList.add('bg-emerald-100', 'text-emerald-600');
-                el.title = 'Đã đồng bộ an toàn lên Cloud';
+                el.title = 'Đã đồng bộ an toàn lên Cloud (RTDB)';
             } else if (status === 'error') {
                 el.classList.add('bg-rose-100', 'text-rose-600');
                 el.title = 'Lỗi đồng bộ Cloud';
@@ -3454,14 +3456,17 @@
                 const user = auth.currentUser;
                 if (!user) return;
 
-                // Chuẩn bị đường dẫn lưu trữ private riêng tư cho User
-                const stateDocRef = doc(db, 'artifacts', appId, 'users', user.uid, 'fmcgData', 'main');
+                // Chuẩn hóa đường dẫn (RTDB không cho phép chứa dấu ".", "#", "$", "[", "]")
+                const safeAppId = String(appId).replace(/[.#$\[\]]/g, '_');
+
+                // Chuẩn bị đường dẫn lưu trữ private riêng tư cho User trên Realtime Database
+                const stateDbRef = ref(db, `artifacts/${safeAppId}/users/${user.uid}/fmcgData/main`);
 
                 // Cung cấp hàm lưu dữ liệu ra bên ngoài
                 window._firebaseSaveState = async (stateObj) => {
                     setSyncStatus('syncing');
                     try {
-                        await setDoc(stateDocRef, stateObj);
+                        await set(stateDbRef, stateObj);
                         setSyncStatus('success');
                     } catch (err) {
                         console.error("Firebase save error:", err);
@@ -3469,11 +3474,11 @@
                     }
                 };
 
-                // Lắng nghe sự thay đổi dữ liệu theo thời gian thực
-                onSnapshot(stateDocRef, (docSnap) => {
-                    if (docSnap.exists()) {
+                // Lắng nghe sự thay đổi dữ liệu theo thời gian thực (Realtime Database)
+                onValue(stateDbRef, (snapshot) => {
+                    if (snapshot.exists()) {
                         setSyncStatus('success');
-                        const data = docSnap.data();
+                        const data = snapshot.val();
                         if (window._firebaseLoadState) {
                             window._firebaseLoadState(data);
                         }
